@@ -1,0 +1,1 @@
+# Test package for AI Foundation chat application

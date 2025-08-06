@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSE ChatGPT</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="static/error-styles.css?v=1754457920">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+        #sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+        #new-chat-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        #session-list {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        .session-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .session-item:hover {
+            background-color: #34495e;
+        }
+        .session-item.active {
+            background-color: #3498db;
+        }
+        .session-item:hover .delete-session-btn {
+            opacity: 1;
+        }
+
+        .delete-session-btn {
+            background: none;
+            border: none;
+            color: #ecf0f1;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 5px;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .delete-session-btn:hover {
+            color: #e74c3c;
+        }
+
+        #main-chat {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden; /* Prevent horizontal overflow */
+        }
+        #chat-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message {
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: 70%;
+            line-height: 1.5;
+            word-wrap: break-word; /* Add this to break long words */
+            max-width: clamp(300px, 70%, 900px); /* Add a clamp for responsive max-width */
+        }
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+        .ai-message {
+            background-color: #e9e9eb;
+            color: #333;
+            align-self: flex-start;
+        }
+        #prompt-container {
+            display: flex;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            background-color: #fff;
+            align-items: center; /* Align items vertically in the middle */
+            box-sizing: border-box; /* Ensure padding is included in the width */
+            width: 100%; /* Make sure it takes the full width of its container */
+        }
+        #attach-file-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 15px; /* Adjust padding for icon */
+            border-radius: 20px;
+            font-size: 18px; /* Adjust font size for icon */
+            cursor: pointer;
+            margin-right: 10px; /* Space between icon and input */
+        }
+        #model-select {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            padding: 12px 15px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            margin-right: 10px;
+            min-width: 140px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        #model-select:hover {
+            background-color: #e9ecef;
+            border-color: #007bff;
+        }
+        #model-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        #prompt {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <button id="new-chat-btn">New Chat</button>
+        <div id="session-list"></div>
+    </div>
+    <div id="main-chat">
+        <div id="chat-container"></div>
+        <div id="prompt-container">
+            <input type="file" id="file-input" style="display: none;">
+            <button id="attach-file-btn" type="button">📎</button>
+            
+            <!-- Model Selection -->
+            <select id="model-select" title="Select AI Model">
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
+            </select>
+            
+            <!-- Enhanced File Preview Container -->
+            <div id="file-preview-container" class="file-preview-enhanced" style="display: none;">
+                <div class="file-preview-main">
+                    <div class="file-icon-container">
+                        <div id="file-type-icon" class="file-type-icon"></div>
+                    </div>
+                    <div class="file-info">
+                        <div class="file-name-row">
+                            <span id="file-name" class="file-name"></span>
+                            <button id="remove-file-btn" class="remove-file-btn">&times;</button>
+                        </div>
+                        <div class="file-details">
+                            <span id="file-size" class="file-size"></span>
+                            <span id="file-type" class="file-type"></span>
+                            <div id="security-indicator" class="security-indicator" style="display: none;">
+                                <div class="security-score-bar">
+                                    <div id="security-score-fill" class="security-score-fill"></div>
+                                </div>
+                                <span id="security-score-text" class="security-score-text"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="metadata-toggle-btn" class="metadata-toggle-btn" style="display: none;">
+                        <span class="metadata-toggle-icon">▼</span>
+                    </button>
+                </div>
+                
+                <!-- Expandable Metadata Panel -->
+                <div id="file-metadata-panel" class="file-metadata-panel" style="display: none;">
+                    <div class="metadata-section">
+                        <h4>File Information</h4>
+                        <div class="metadata-grid">
+                            <div class="metadata-item">
+                                <span class="metadata-label">Hash:</span>
+                                <span id="file-hash" class="metadata-value file-hash"></span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label">MIME Type:</span>
+                                <span id="file-mime" class="metadata-value"></span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label">Security Score:</span>
+                                <span id="detailed-security-score" class="metadata-value security-score"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="validation-results" class="metadata-section" style="display: none;">
+                        <h4>Validation Results</h4>
+                        <div id="validation-details" class="validation-details"></div>
+                    </div>
+                </div>
+                
+                <!-- Progress Bars Container -->
+                <div id="progress-container" class="progress-container" style="display: none;">
+                    <div id="upload-progress" class="progress-bar-wrapper" style="display: none;">
+                        <div class="progress-label">
+                            <span>Uploading...</span>
+                            <span id="upload-percentage" class="progress-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="upload-progress-fill" class="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="validation-progress" class="progress-bar-wrapper" style="display: none;">
+                        <div class="progress-label">
+                            <span id="validation-stage-text">Validating...</span>
+                            <span id="validation-percentage" class="progress-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="validation-progress-fill" class="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="processing-progress" class="progress-bar-wrapper" style="display: none;">
+                        <div class="progress-label">
+                            <span>Processing...</span>
+                            <span id="processing-percentage" class="progress-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="processing-progress-fill" class="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Processing Indicators Container -->
+                <div id="processing-indicators" class="processing-indicators" style="display: none;">
+                    <div id="processing-spinner" class="processing-spinner"></div>
+                    <div id="processing-message" class="processing-message"></div>
+                    <div id="processing-status" class="processing-status"></div>
+                </div>
+            </div>
+            
+            <input id="prompt" type="text" placeholder="Type your message...">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <!-- Load JavaScript files after DOM is ready -->
+    <script src="static/error-handler.js?v=1754457920"></script>
+    <script src="static/enhanced-ui-components.js?v=1754457920"></script>
+    <script src="static/script.js?v=1754457920"></script>
+</body>
+</html>
