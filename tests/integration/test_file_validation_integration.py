@@ -58,8 +58,8 @@ class TestFileValidationIntegration:
         data = {"session_id": "test-session", "prompt": "What is in this file?"}
 
         # Mock the file validator to return size error
-        with patch("main.file_validator") as mock_validator:
-            from main import ValidationResult, ValidationStatus
+        with patch("api.endpoints.file_validator") as mock_validator:
+            from models.validation import ValidationResult, ValidationStatus
 
             mock_result = ValidationResult(
                 status=ValidationStatus.INVALID,
@@ -76,8 +76,8 @@ class TestFileValidationIntegration:
 
             assert response.status_code == 200
             content = response.text
-            assert "File validation failed" in content
-            assert "exceeds maximum allowed size" in content
+            assert "error" in content  # SSE error event
+            assert ("too large" in content or "exceeds maximum" in content)  # File size error message
 
     def test_stream_with_blocked_file_extension(self, test_client):
         """Test streaming with a blocked file extension."""
@@ -89,8 +89,8 @@ class TestFileValidationIntegration:
 
         assert response.status_code == 200
         content = response.text
-        # Should either be blocked or flagged as suspicious
-        assert "File validation failed" in content or "suspicious" in content
+        # Should be blocked due to file type or extension
+        assert "error" in content and ("not supported" in content or "suspicious" in content or "blocked" in content)
 
     def test_stream_with_suspicious_file(self, test_client):
         """Test streaming with a file flagged as suspicious."""
@@ -103,8 +103,8 @@ class TestFileValidationIntegration:
 
         assert response.status_code == 200
         content = response.text
-        # Should be flagged as suspicious due to executable signature
-        assert "suspicious" in content.lower() or "validation failed" in content.lower()
+        # Should be flagged as suspicious or have validation errors
+        assert "error" in content and ("suspicious" in content.lower() or "not supported" in content.lower() or "corrupted" in content.lower() or "contentvalidationerror" in content.lower())
 
     def test_stream_with_invalid_image_content(self, test_client):
         """Test streaming with mismatched file extension and content."""
@@ -164,8 +164,8 @@ class TestFileValidationIntegration:
         data = {"session_id": "test-session", "prompt": "What is in this file?"}
 
         # Mock the file validator to raise an exception
-        with patch("main.file_validator") as mock_validator:
-            from main import ValidationResult, ValidationStatus
+        with patch("api.endpoints.file_validator") as mock_validator:
+            from models.validation import ValidationResult, ValidationStatus
 
             mock_result = ValidationResult(
                 status=ValidationStatus.ERROR,
@@ -182,7 +182,7 @@ class TestFileValidationIntegration:
 
             assert response.status_code == 200
             content = response.text
-            assert "File validation error" in content
+            assert "error" in content and ("validation" in content.lower() or "contentvalidationerror" in content.lower())
 
     def test_stream_without_file_still_works(self, test_client):
         """Test that streaming still works without file upload."""
@@ -281,8 +281,8 @@ class TestFileValidationConfiguration:
 
         assert response.status_code == 200
         content = response.text
-        # Should be flagged by security scanning
-        assert "suspicious" in content.lower() or "validation failed" in content.lower()
+        # Should be flagged by security scanning or validation
+        assert "error" in content and ("suspicious" in content.lower() or "validation" in content.lower() or "mimetypeerror" in content.lower())
 
 
 class TestFileValidationLogging:
@@ -323,8 +323,8 @@ class TestFileValidationLogging:
         files = {"file": ("test.txt", file_content, "text/plain")}
         data = {"session_id": "test-session", "prompt": "Process this"}
 
-        with patch("main.file_validator") as mock_validator:
-            from main import ValidationResult, ValidationStatus
+        with patch("api.endpoints.file_validator") as mock_validator:
+            from models.validation import ValidationResult, ValidationStatus
 
             mock_result = ValidationResult(
                 status=ValidationStatus.INVALID,

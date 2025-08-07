@@ -30,7 +30,7 @@ class TestDocumentPersistenceWorkflow:
             mock_getenv.return_value = "test-api-key"
 
             # Mock the LLM to avoid actual API calls
-            with patch("langchain_google_genai.ChatGoogleGenerativeAI") as mock_llm_class:
+            with patch("api.endpoints.ChatGoogleGenerativeAI") as mock_llm_class:
                 mock_llm = Mock()
                 mock_llm_class.return_value = mock_llm
 
@@ -239,7 +239,7 @@ class TestDocumentMetadataIntegration:
                 mock_processor.return_value = mock_processed
 
                 # Mock the LLM
-                with patch("langchain_google_genai.ChatGoogleGenerativeAI") as mock_llm_class:
+                with patch("api.endpoints.ChatGoogleGenerativeAI") as mock_llm_class:
                     mock_llm = Mock()
                     mock_llm_class.return_value = mock_llm
 
