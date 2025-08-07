@@ -24,7 +24,7 @@ class TestFileValidationIntegration:
         files = {"file": ("test.txt", file_content, "text/plain")}
         data = {"session_id": "test-session", "prompt": "What is in this file?"}
 
-        with patch("main.ChatGoogleGenerativeAI") as mock_llm:
+        with patch("api.endpoints.ChatGoogleGenerativeAI") as mock_llm:
             # Mock the LLM response
             mock_instance = AsyncMock()
             mock_llm.return_value = mock_instance
@@ -134,7 +134,7 @@ class TestFileValidationIntegration:
         files = {"file": ("test.png", png_content, "image/png")}
         data = {"session_id": "test-session", "prompt": "What is in this image?"}
 
-        with patch("main.ChatGoogleGenerativeAI") as mock_llm:
+        with patch("api.endpoints.ChatGoogleGenerativeAI") as mock_llm:
             # Mock the LLM response
             mock_instance = AsyncMock()
             mock_llm.return_value = mock_instance
@@ -188,7 +188,7 @@ class TestFileValidationIntegration:
         """Test that streaming still works without file upload."""
         data = {"session_id": "test-session", "prompt": "Hello, how are you?"}
 
-        with patch("main.ChatGoogleGenerativeAI") as mock_llm:
+        with patch("api.endpoints.ChatGoogleGenerativeAI") as mock_llm:
             # Mock the LLM response
             mock_instance = AsyncMock()
             mock_llm.return_value = mock_instance
@@ -217,7 +217,7 @@ class TestFileValidationIntegration:
         files = {"file": ("test1.txt", file_content, "text/plain")}
         data = {"session_id": "test-session", "prompt": "Analyze this file"}
 
-        with patch("main.ChatGoogleGenerativeAI") as mock_llm:
+        with patch("api.endpoints.ChatGoogleGenerativeAI") as mock_llm:
             # Mock the LLM response
             mock_instance = AsyncMock()
             mock_llm.return_value = mock_instance
@@ -294,7 +294,7 @@ class TestFileValidationLogging:
         files = {"file": ("test.txt", file_content, "text/plain")}
         data = {"session_id": "test-session", "prompt": "What is in this file?"}
 
-        with patch("main.ChatGoogleGenerativeAI") as mock_llm:
+        with patch("api.endpoints.ChatGoogleGenerativeAI") as mock_llm:
             mock_instance = AsyncMock()
             mock_llm.return_value = mock_instance
 
