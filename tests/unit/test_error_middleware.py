@@ -62,7 +62,8 @@ class TestErrorHandlingMiddleware:
     def error_middleware(self):
         """Create ErrorHandlingMiddleware instance."""
         app = FastAPI()
-        return ErrorHandlingMiddleware(app)
+        error_handler = ErrorHandler()
+        return ErrorHandlingMiddleware(app, error_handler=error_handler)
 
     def test_middleware_creation(self, error_middleware):
         """Test ErrorHandlingMiddleware can be created."""
