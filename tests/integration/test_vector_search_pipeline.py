@@ -28,6 +28,7 @@ from models.search import ChunkEmbedding, EmbeddingMetadata, SearchType, Semanti
 from models.session import DocumentChunk
 
 
+@pytest.mark.vector_service
 class TestVectorSearchPipeline:
     """Integration tests for the complete vector search pipeline."""
 

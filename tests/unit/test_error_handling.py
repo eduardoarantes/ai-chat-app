@@ -9,6 +9,10 @@ Tests cover:
 - Error recovery decision logic
 """
 
+import pytest
+
+pytestmark = pytest.mark.error_handling
+
 import datetime
 import uuid
 from typing import Any, Dict, List

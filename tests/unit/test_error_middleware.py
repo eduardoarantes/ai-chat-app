@@ -9,6 +9,10 @@ Tests cover:
 - Middleware integration with existing endpoints
 """
 
+import pytest
+
+pytestmark = pytest.mark.error_handling
+
 import asyncio
 import datetime
 import json

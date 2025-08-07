@@ -5,6 +5,10 @@ This test module validates the end-to-end PDF processing workflow including
 document factory integration and fallback mechanisms.
 """
 
+import pytest
+
+pytestmark = pytest.mark.pdf_processing
+
 import asyncio
 import os
 

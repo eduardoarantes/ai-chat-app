@@ -19,12 +19,14 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import numpy as np
 import pytest
+import pytest_asyncio
 
 # Import the EmbeddingService (to be implemented)
 from core.embedding_service import EmbeddingError, EmbeddingMetadata, EmbeddingService
 from models.session import DocumentChunk
 
 
+@pytest.mark.vector_service
 class TestEmbeddingService:
     """Test suite for EmbeddingService component."""
 
@@ -66,7 +68,7 @@ class TestEmbeddingService:
         mock.device = "cpu"
         return mock
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def embedding_service(self):
         """Create EmbeddingService instance with default config."""
         with patch("core.embedding_service.SentenceTransformer") as mock_st:

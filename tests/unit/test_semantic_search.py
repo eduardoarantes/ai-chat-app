@@ -18,6 +18,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import numpy as np
 import pytest
+import pytest_asyncio
 
 from core.embedding_service import EmbeddingService
 
@@ -35,6 +36,7 @@ from models.search import (
 from models.session import DocumentChunk
 
 
+@pytest.mark.vector_service
 class TestSemanticSearchService:
     """Test suite for SemanticSearchService component."""
 
@@ -85,7 +87,7 @@ class TestSemanticSearchService:
             ),
         ]
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def semantic_search_service(self, mock_embedding_service, mock_vector_store):
         """Create SemanticSearchService instance with mocked dependencies."""
         service = SemanticSearchService(embedding_service=mock_embedding_service, vector_store=mock_vector_store)

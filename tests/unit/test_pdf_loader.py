@@ -5,6 +5,10 @@ This test module validates PDF processing functionality including content extrac
 metadata handling, structure preservation, and error handling.
 """
 
+import pytest
+
+pytestmark = pytest.mark.pdf_processing
+
 import asyncio
 import os
 

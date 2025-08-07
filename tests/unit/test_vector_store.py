@@ -20,12 +20,14 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import numpy as np
 import pytest
+import pytest_asyncio
 
 # Import the VectorStore (to be implemented)
 from core.vector_store import VectorStore, VectorStoreError
 from models.search import ChunkEmbedding, DatabaseStats, EmbeddingMetadata, SearchResult
 
 
+@pytest.mark.vector_service
 class TestVectorStore:
     """Test suite for VectorStore component."""
 
@@ -63,7 +65,7 @@ class TestVectorStore:
         mock_client.list_collections.return_value = []
         return mock_client, mock_collection
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def vector_store(self, temp_db_path, mock_chroma_client):
         """Create VectorStore instance with mocked ChromaDB."""
         mock_client, mock_collection = mock_chroma_client
