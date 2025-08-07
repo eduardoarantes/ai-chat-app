@@ -3,40 +3,47 @@
 import datetime
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Any
-
+from typing import Any, Dict, List, Optional
 
 # --- File Validation Exception Hierarchy ---
 
+
 class FileValidationError(Exception):
     """Base exception for file validation errors."""
+
     pass
 
 
 class FileSizeError(FileValidationError):
     """File exceeds maximum allowed size."""
+
     pass
 
 
 class MimeTypeError(FileValidationError):
     """File MIME type not allowed."""
+
     pass
 
 
 class SecurityError(FileValidationError):
     """File failed security validation."""
+
     pass
 
 
 class ContentValidationError(FileValidationError):
     """File content validation failed."""
+
     pass
 
 
 # --- Error Handling Enums ---
 
+
 class ErrorSeverity(Enum):
     """Enumeration for error severity levels."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -45,6 +52,7 @@ class ErrorSeverity(Enum):
 
 class ErrorCategory(Enum):
     """Enumeration for error categories."""
+
     VALIDATION = "validation"
     SESSION = "session"
     LLM = "llm"
@@ -55,9 +63,11 @@ class ErrorCategory(Enum):
 
 # --- Error Context and Result Models ---
 
+
 @dataclass
 class ErrorContext:
     """Captures contextual information about an error occurrence."""
+
     error_id: str
     timestamp: datetime.datetime
     session_id: Optional[str]
@@ -71,6 +81,7 @@ class ErrorContext:
 @dataclass
 class ErrorResult:
     """Complete error processing result with context and user-friendly messages."""
+
     error_code: str
     severity: ErrorSeverity
     category: ErrorCategory
@@ -84,16 +95,17 @@ class ErrorResult:
 
 # --- Application Exception Hierarchy ---
 
+
 class ApplicationError(Exception):
     """Base exception for application errors with enhanced metadata."""
-    
+
     def __init__(
-        self, 
-        message: str, 
-        error_code: str, 
-        severity: ErrorSeverity, 
+        self,
+        message: str,
+        error_code: str,
+        severity: ErrorSeverity,
         user_message: Optional[str] = None,
-        suggested_actions: Optional[List[str]] = None
+        suggested_actions: Optional[List[str]] = None,
     ):
         super().__init__(message)
         self.error_code = error_code
@@ -104,19 +116,23 @@ class ApplicationError(Exception):
 
 class SessionError(ApplicationError):
     """Session management errors."""
+
     pass
 
 
 class LLMError(ApplicationError):
     """Language model interaction errors."""
+
     pass
 
 
 class NetworkError(ApplicationError):
     """Network and connectivity errors."""
+
     pass
 
 
 class ConfigurationError(ApplicationError):
     """Configuration and environment errors."""
+
     pass

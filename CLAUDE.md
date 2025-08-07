@@ -53,6 +53,29 @@ pytest tests/ -n auto
 pytest tests/ --junitxml=test-results.xml
 ```
 
+### Code Quality and Linting
+
+The project uses multiple linting tools to maintain code quality (same as GitHub Actions CI):
+
+```bash
+# Quick formatting (recommended at end of work sessions)
+./format.sh
+
+# Comprehensive linting with all tools
+python3 lint.py
+
+# Check-only mode (CI-compatible)
+python3 lint.py --check
+
+# Individual tools:
+black .                    # Code formatting
+isort .                    # Import sorting  
+mypy main.py --ignore-missing-imports    # Type checking
+bandit -r . -f json -o bandit-report.json  # Security linting
+```
+
+**Important**: Always run `./format.sh` or `python3 lint.py` after completing development work to ensure code passes CI formatting checks.
+
 ## Architecture
 
 ### High-Level Flow

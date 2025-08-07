@@ -2,11 +2,12 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 
 class ValidationStatus(Enum):
     """Enumeration for file validation statuses."""
+
     VALID = "valid"
     INVALID = "invalid"
     SUSPICIOUS = "suspicious"
@@ -16,6 +17,7 @@ class ValidationStatus(Enum):
 @dataclass
 class ValidationResult:
     """Result of file validation containing all validation metadata."""
+
     status: ValidationStatus
     file_hash: str
     mime_type: str
@@ -28,6 +30,7 @@ class ValidationResult:
 @dataclass
 class FileValidationConfig:
     """Configuration for file validation parameters."""
+
     max_file_size: int = 50 * 1024 * 1024  # 50MB default
     allowed_mime_types: Optional[set[str]] = None
     blocked_extensions: Optional[set[str]] = None
