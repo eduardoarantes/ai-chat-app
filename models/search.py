@@ -253,6 +253,54 @@ class VectorDatabaseStats(BaseModel):
     model_distribution: Dict[str, int] = Field(default_factory=dict, description="Count of embeddings by model")
 
 
+@dataclass
+class SearchResult:
+    """Individual search result from vector similarity search."""
+    chunk_id: str
+    document_id: str
+    session_id: str
+    content: str
+    similarity_score: float
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    document_metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary representation."""
+        return {
+            "chunk_id": self.chunk_id,
+            "document_id": self.document_id,
+            "session_id": self.session_id,
+            "content": self.content,
+            "similarity_score": self.similarity_score,
+            "metadata": self.metadata,
+            "document_metadata": self.document_metadata
+        }
+
+
+@dataclass
+class DatabaseStats:
+    """Statistics about the vector database."""
+    total_embeddings: int
+    total_documents: int
+    total_sessions: int
+    database_size_mb: float
+    oldest_embedding: Optional[datetime] = None
+    newest_embedding: Optional[datetime] = None
+    model_distribution: Dict[str, int] = field(default_factory=dict)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary representation."""
+        return {
+            "total_embeddings": self.total_embeddings,
+            "total_documents": self.total_documents,
+            "total_sessions": self.total_sessions,
+            "database_size_mb": self.database_size_mb,
+            "oldest_embedding": self.oldest_embedding.isoformat() if self.oldest_embedding else None,
+            "newest_embedding": self.newest_embedding.isoformat() if self.newest_embedding else None,
+            "model_distribution": self.model_distribution
+        }
+
+
 class SearchAnalytics(BaseModel):
     """Analytics data for search operations."""
     query: str = Field(..., description="Search query")

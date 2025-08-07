@@ -56,6 +56,35 @@ CLEANUP_INTERVAL_MINUTES = 60  # How often to run cleanup
 MAX_SHARED_DOCUMENTS_PER_SESSION = 10
 ENABLE_CROSS_SESSION_SHARING = False  # Disabled by default for security
 
+# Vector embeddings and semantic search configuration constants
+ENABLE_VECTOR_SEARCH = True  # Enable vector embeddings and semantic search
+EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+EMBEDDING_DIMENSION = 384
+ENABLE_GPU_ACCELERATION = True  # Use GPU if available
+EMBEDDING_CACHE_SIZE = 10000  # Number of embeddings to cache
+EMBEDDING_BATCH_SIZE = 32  # Batch size for embedding generation
+ENABLE_MODEL_QUANTIZATION = False  # Use quantized models
+MODEL_CACHE_PATH = "./models/embeddings"
+MAX_SEQUENCE_LENGTH = 512
+
+# Vector database configuration
+VECTOR_DB_PATH = "./data/vector_db"
+COLLECTION_PREFIX = "documents"
+ENABLE_VECTOR_DB_BACKUP = True
+BACKUP_INTERVAL_HOURS = 24
+MAX_BACKUP_FILES = 7
+ENABLE_VECTOR_DB_COMPRESSION = True
+
+# Semantic search configuration
+DEFAULT_SEARCH_LIMIT = 10
+MIN_SIMILARITY_THRESHOLD = 0.3
+MAX_SIMILARITY_THRESHOLD = 1.0
+ENABLE_QUERY_EXPANSION = True
+ENABLE_RESULT_DEDUPLICATION = True
+SEARCH_CACHE_SIZE = 1000
+SEARCH_CACHE_TTL_MINUTES = 30
+SIMILARITY_THRESHOLD_FOR_DEDUP = 0.9
+
 
 class AppConfig:
     """Application configuration settings."""
@@ -93,6 +122,35 @@ class AppConfig:
         self.cleanup_interval_minutes = int(os.getenv("CLEANUP_INTERVAL_MINUTES", CLEANUP_INTERVAL_MINUTES))
         self.max_shared_documents_per_session = int(os.getenv("MAX_SHARED_DOCUMENTS_PER_SESSION", MAX_SHARED_DOCUMENTS_PER_SESSION))
         self.enable_cross_session_sharing = os.getenv("ENABLE_CROSS_SESSION_SHARING", "false").lower() == "true"
+        
+        # Vector embeddings and semantic search configuration
+        self.enable_vector_search = os.getenv("ENABLE_VECTOR_SEARCH", "true").lower() == "true"
+        self.embedding_model_name = os.getenv("EMBEDDING_MODEL_NAME", EMBEDDING_MODEL_NAME)
+        self.embedding_dimension = int(os.getenv("EMBEDDING_DIMENSION", EMBEDDING_DIMENSION))
+        self.enable_gpu_acceleration = os.getenv("ENABLE_GPU_ACCELERATION", "true").lower() == "true"
+        self.embedding_cache_size = int(os.getenv("EMBEDDING_CACHE_SIZE", EMBEDDING_CACHE_SIZE))
+        self.embedding_batch_size = int(os.getenv("EMBEDDING_BATCH_SIZE", EMBEDDING_BATCH_SIZE))
+        self.enable_model_quantization = os.getenv("ENABLE_MODEL_QUANTIZATION", "false").lower() == "true"
+        self.model_cache_path = os.getenv("MODEL_CACHE_PATH", MODEL_CACHE_PATH)
+        self.max_sequence_length = int(os.getenv("MAX_SEQUENCE_LENGTH", MAX_SEQUENCE_LENGTH))
+        
+        # Vector database configuration
+        self.vector_db_path = os.getenv("VECTOR_DB_PATH", VECTOR_DB_PATH)
+        self.collection_prefix = os.getenv("COLLECTION_PREFIX", COLLECTION_PREFIX)
+        self.enable_vector_db_backup = os.getenv("ENABLE_VECTOR_DB_BACKUP", "true").lower() == "true"
+        self.backup_interval_hours = int(os.getenv("BACKUP_INTERVAL_HOURS", BACKUP_INTERVAL_HOURS))
+        self.max_backup_files = int(os.getenv("MAX_BACKUP_FILES", MAX_BACKUP_FILES))
+        self.enable_vector_db_compression = os.getenv("ENABLE_VECTOR_DB_COMPRESSION", "true").lower() == "true"
+        
+        # Semantic search configuration
+        self.default_search_limit = int(os.getenv("DEFAULT_SEARCH_LIMIT", DEFAULT_SEARCH_LIMIT))
+        self.min_similarity_threshold = float(os.getenv("MIN_SIMILARITY_THRESHOLD", MIN_SIMILARITY_THRESHOLD))
+        self.max_similarity_threshold = float(os.getenv("MAX_SIMILARITY_THRESHOLD", MAX_SIMILARITY_THRESHOLD))
+        self.enable_query_expansion = os.getenv("ENABLE_QUERY_EXPANSION", "true").lower() == "true"
+        self.enable_result_deduplication = os.getenv("ENABLE_RESULT_DEDUPLICATION", "true").lower() == "true"
+        self.search_cache_size = int(os.getenv("SEARCH_CACHE_SIZE", SEARCH_CACHE_SIZE))
+        self.search_cache_ttl_minutes = int(os.getenv("SEARCH_CACHE_TTL_MINUTES", SEARCH_CACHE_TTL_MINUTES))
+        self.similarity_threshold_for_dedup = float(os.getenv("SIMILARITY_THRESHOLD_FOR_DEDUP", SIMILARITY_THRESHOLD_FOR_DEDUP))
         
         # Validate required configuration
         if not self.google_api_key:
@@ -146,6 +204,45 @@ class AppConfig:
             "cleanup_interval_minutes": self.cleanup_interval_minutes,
             "max_shared_documents_per_session": self.max_shared_documents_per_session,
             "enable_cross_session_sharing": self.enable_cross_session_sharing
+        }
+    
+    def get_vector_search_config(self) -> dict:
+        """Get vector embeddings and semantic search configuration."""
+        return {
+            "enable_vector_search": self.enable_vector_search,
+            "embedding_model_name": self.embedding_model_name,
+            "embedding_dimension": self.embedding_dimension,
+            "enable_gpu_acceleration": self.enable_gpu_acceleration,
+            "embedding_cache_size": self.embedding_cache_size,
+            "embedding_batch_size": self.embedding_batch_size,
+            "enable_model_quantization": self.enable_model_quantization,
+            "model_cache_path": self.model_cache_path,
+            "max_sequence_length": self.max_sequence_length
+        }
+    
+    def get_vector_database_config(self) -> dict:
+        """Get vector database configuration."""
+        return {
+            "vector_db_path": self.vector_db_path,
+            "collection_prefix": self.collection_prefix,
+            "enable_vector_db_backup": self.enable_vector_db_backup,
+            "backup_interval_hours": self.backup_interval_hours,
+            "max_backup_files": self.max_backup_files,
+            "enable_vector_db_compression": self.enable_vector_db_compression,
+            "expected_dimension": self.embedding_dimension
+        }
+    
+    def get_semantic_search_config(self) -> dict:
+        """Get semantic search configuration."""
+        return {
+            "default_search_limit": self.default_search_limit,
+            "min_similarity_threshold": self.min_similarity_threshold,
+            "max_similarity_threshold": self.max_similarity_threshold,
+            "enable_query_expansion": self.enable_query_expansion,
+            "enable_result_deduplication": self.enable_result_deduplication,
+            "search_cache_size": self.search_cache_size,
+            "search_cache_ttl_minutes": self.search_cache_ttl_minutes,
+            "similarity_threshold_for_dedup": self.similarity_threshold_for_dedup
         }
 
 
@@ -222,3 +319,8 @@ def setup_logging(level: str = "INFO") -> None:
     # Suppress some noisy loggers
     logging.getLogger('httpx').setLevel(logging.WARNING)
     logging.getLogger('asyncio').setLevel(logging.WARNING)
+
+
+def get_config() -> AppConfig:
+    """Get the global application configuration instance."""
+    return AppConfig()

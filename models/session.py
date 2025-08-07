@@ -9,6 +9,22 @@ from typing import Dict, List, Optional, Any, Set
 from models.chunking import ChunkedDocument
 
 
+@dataclass
+class DocumentChunk:
+    """Individual document chunk for vector embeddings."""
+    chunk_id: str
+    document_id: str
+    content: str
+    start_page: int
+    end_page: int
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def __post_init__(self):
+        """Ensure chunk_id is set if not provided."""
+        if not self.chunk_id:
+            self.chunk_id = str(uuid.uuid4())
+
+
 class DocumentProcessingStatus(Enum):
     """Enumeration for document processing status."""
     PENDING = "pending"
