@@ -47,6 +47,9 @@ jobs:
         fi
 
     - name: Test with pytest
+      env:
+        GOOGLE_API_KEY: "test-api-key-for-ci"
+        CI: "true"
       run: |
         pytest tests/ -v --cov=main --cov-report=xml --cov-report=term-missing --junitxml=test-results.xml
 

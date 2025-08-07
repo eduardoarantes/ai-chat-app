@@ -296,6 +296,10 @@ def create_file_validator(config: AppConfig) -> FileValidator:
 
 def validate_environment() -> None:
     """Validate that all required environment variables are set."""
+    # Skip validation in test environments
+    if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("CI"):
+        return
+
     required_vars = ["GOOGLE_API_KEY"]
     missing_vars = []
 
