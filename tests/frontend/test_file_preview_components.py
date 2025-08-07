@@ -11,15 +11,22 @@ Tests the FilePreviewManager class and related UI components for:
 
 import asyncio
 import json
+import os
 import time
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+
+# Skip Selenium tests in CI environment where Chrome is not available
+selenium_available = True
+try:
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.support.ui import WebDriverWait
+except ImportError:
+    selenium_available = False
 
 
 class TestFilePreviewManager:
@@ -199,6 +206,7 @@ class TestFilePreviewIntegration:
 
 
 @pytest.mark.selenium
+@pytest.mark.skipif(not selenium_available or os.getenv("CI"), reason="Selenium not available or running in CI")
 class TestFilePreviewE2E:
     """End-to-end tests using Selenium WebDriver."""
 
