@@ -16,6 +16,7 @@ from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
 
 # Import services and models
@@ -67,7 +68,7 @@ class TestVectorSearchPipeline:
             ),
         ]
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def vector_services(self, temp_vector_db):
         """Create and initialize vector services for testing."""
         with patch("torch.cuda.is_available", return_value=False):

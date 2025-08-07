@@ -77,7 +77,7 @@ class TestFileValidationIntegration:
             assert response.status_code == 200
             content = response.text
             assert "error" in content  # SSE error event
-            assert ("too large" in content or "exceeds maximum" in content)  # File size error message
+            assert "too large" in content or "exceeds maximum" in content  # File size error message
 
     def test_stream_with_blocked_file_extension(self, test_client):
         """Test streaming with a blocked file extension."""
@@ -104,7 +104,12 @@ class TestFileValidationIntegration:
         assert response.status_code == 200
         content = response.text
         # Should be flagged as suspicious or have validation errors
-        assert "error" in content and ("suspicious" in content.lower() or "not supported" in content.lower() or "corrupted" in content.lower() or "contentvalidationerror" in content.lower())
+        assert "error" in content and (
+            "suspicious" in content.lower()
+            or "not supported" in content.lower()
+            or "corrupted" in content.lower()
+            or "contentvalidationerror" in content.lower()
+        )
 
     def test_stream_with_invalid_image_content(self, test_client):
         """Test streaming with mismatched file extension and content."""
@@ -282,7 +287,9 @@ class TestFileValidationConfiguration:
         assert response.status_code == 200
         content = response.text
         # Should be flagged by security scanning or validation
-        assert "error" in content and ("suspicious" in content.lower() or "validation" in content.lower() or "mimetypeerror" in content.lower())
+        assert "error" in content and (
+            "suspicious" in content.lower() or "validation" in content.lower() or "mimetypeerror" in content.lower()
+        )
 
 
 class TestFileValidationLogging:
